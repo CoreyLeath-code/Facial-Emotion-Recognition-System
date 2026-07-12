@@ -77,6 +77,75 @@ The platform was structurally stress-tested across multiple runtime environments
 * **Synchronous Frame Reading (Legacy Model):** Stalls the video loop during inference, dropping aggregate throughput down to a jagged **~14-18 FPS** on standard CPU systems.
 * **Asynchronous Multi-Threaded Ingestion (Current Model):** Maintains a flat, deterministic thread-ingestion rate of **60.0 FPS**, ensuring the Streamlit observability control canvas remains responsive regardless of model workload variance.
 
+## 📊 Research Benchmark & Project Metrics
+
+Measured and normalized on 2026-07-12. Metrics are split by provenance so reproduced experiment outputs, documented benchmark claims, and local smoke validation remain auditable.
+
+### Experimental Evaluation Metrics
+
+| Metric | Value | Provenance |
+|---|---:|---|
+| Dataset family | FER-2013 | `MODEL_CARD.md`, `docs/performance_metrics.md` |
+| Documented full dataset size | ~35,000 labeled images | `docs/performance_metrics.md` |
+| Checked-in dataset fixture | 24 lines / 683 bytes | `fer2013.csv` repository fixture |
+| Emotion classes | 7 | Angry, Disgust, Fear, Happy, Sad, Surprise, Neutral |
+| Input tensor | 48x48 grayscale | `src.dataset.FERDataset`, `MODEL_CARD.md` |
+| Primary lightweight architecture | CNN | `src.src.modeling.model.EmotionCNN` |
+| Optional backbone | ResNet18 | `src.src.modeling.model.ResNetEmotion` |
+| Output layer | 7-class logits / softmax probabilities | `EmotionCNN`, `EmotionModel.predict()` |
+| Trainable parameters, CNN | 1,199,495 | Local model introspection |
+| Recorded validation accuracy | 0.7142 | `results/results_emotion_cnn_v2.txt` |
+| Recorded validation loss | 0.7841 | `results/results_emotion_cnn_v2.txt` |
+| Recorded macro precision | 0.70 | `results/results_emotion_cnn_v2.txt` |
+| Recorded macro recall | 0.69 | `results/results_emotion_cnn_v2.txt` |
+| Recorded macro F1-score | 0.69 | `results/results_emotion_cnn_v2.txt` |
+| Recorded weighted F1-score | 0.71 | `results/results_emotion_cnn_v2.txt` |
+| Recorded evaluation support | 3,200 samples | `results/results_emotion_cnn_v2.txt` |
+| Strongest recorded class | Happy, F1 = 0.86 | `results/results_emotion_cnn_v2.txt` |
+| Weakest recorded class | Disgust, F1 = 0.45 | `results/results_emotion_cnn_v2.txt` |
+| Reference accuracy baseline | 86.9% | `Metrics.md` |
+| Reported benchmark accuracy | 92.3% | `docs/performance_metrics.md` |
+| Reported benchmark F1-score | 0.91 | `docs/performance_metrics.md` |
+| Reported benchmark precision | 0.92 | `docs/performance_metrics.md` |
+| Reported benchmark recall | 0.91 | `docs/performance_metrics.md` |
+| Reported benchmark inference time | ~0.032s | `docs/performance_metrics.md` |
+
+### Benchmark & Runtime Metrics
+
+| Benchmark Profile | Resolution / Batch | Latency | Throughput | Resource Notes |
+|---|---:|---:|---:|---|
+| NVIDIA Jetson Nano edge node | 480p / batch 1 | 28.40 ms | 35.2 FPS | ~1.2 GB VRAM / 25% CPU |
+| AWS EC2 g4dn.xlarge T4 GPU | 720p / batch 8 | 4.12 ms | 242.7 FPS | ~2.1 GB VRAM / 12% CPU |
+| Headless Linux runner vCPU | 480p grayscale / batch 1 | 54.10 ms | 18.5 FPS | Single-core bound / 88% CPU |
+| Apple M2 Pro unified memory | 720p / batch 1 | 11.20 ms | 89.3 FPS | ~850 MB system memory |
+| Legacy synchronous frame loop | 720p stream ingestion | Variable | ~14-18 FPS | Frame loop stalls during inference |
+| AsyncStreamProcessor ingestion | 720p stream ingestion | Queue decoupled | 60.0 FPS | Background daemon frame acquisition |
+| Local synthetic EmotionCNN smoke benchmark | 48x48 grayscale / batch 1 | 0.3382 ms | 2,956.79 FPS | 200 CPU forward passes, no I/O or face detection |
+
+### Project & Reproducibility Metrics
+
+| Area | Metric | Current Value | Source |
+|---|---:|---:|---|
+| Codebase | Tracked files | 102 | `git ls-files` |
+| Codebase | Python files | 54 | `*.py` files |
+| Codebase | Python NCLOC | 1,820 | Non-empty, non-comment Python lines |
+| Tests | Test files | 14 | Root and nested `tests/` paths |
+| Tests | Test declarations | 20 | `def test_*` / `class Test*` scan |
+| Tests | Focused PyTorch validation | 6 passed | `pytest test_imports.py test_model_structure.py tests/test_model.py` |
+| Tests | Focused `src` coverage | 15% | Local coverage run on focused PyTorch scope |
+| CI/CD | GitHub Actions workflows | 7 | `.github/workflows/*.yml` |
+| Dependencies | Runtime dependencies | 7 | `Requirements.txt` |
+| Delivery | Docker assets | 2 | `Dockerfile`, `docker-compose.yml` |
+| Delivery | Kubernetes manifests | 3 | `k8s/*.yaml` |
+| Delivery | Helm chart files | 6 | `helm/` |
+| Documentation | Research / ops docs | 9 | `README.md`, `MODEL_CARD.md`, `docs/*.md`, ethics/setup/system docs |
+| Notebooks | Exploration notebooks | 2 | `notebooks/*.ipynb` |
+| Pipelines | Airflow DAGs | 1 | `airflow/dags/facial_emotion_dag.py` |
+| Model artifacts | Weights committed | No | `artifacts/models/.gitkeep`, `models/README.md` |
+| API surface | Core prediction endpoint | `POST /predict` | FastAPI app |
+| Stream processing | Default queue depth | 5 frames | `AsyncStreamProcessor(max_queue_size=5)` |
+| Benchmark command | pytest-benchmark workflow | Configured | `.github/workflows/benchmarks.yml` |
+
 Repository Blueprint Layout
 
 The implementation enforces a clean separation of concerns between model execution boundaries, data ingest vectors, and presentation control layers:
