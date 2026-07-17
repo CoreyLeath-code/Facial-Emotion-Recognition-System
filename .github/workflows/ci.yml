@@ -1,31 +1,87 @@
-name: Code Quality Assurance
+name: CI
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
-    branches: [ main ]
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
-  style-compliance:
-    name: Code Hygiene Enforcement
+  quality:
     runs-on: ubuntu-latest
-
     steps:
-      - name: ⬇️ Checkout Repository
-        uses: actions/checkout@v4
-
-      - name: 🐍 Set up Python
-        uses: actions/setup-python@v5
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
-          cache: 'pip'
+          python-version: "3.11"
+          cache: pip
+      - run: python -m pip install --upgrade pip "setuptools>=83" && pip install -e ".[dev]"
+      - run: ruff format --check src/api/validation.py src/src/config/settings.py src/src/rag/context_retriever.py tests/production
+      - run: ruff check src/api/validation.py src/src/config/settings.py src/src/rag/context_retriever.py tests/production
+      - run: mypy
+      - run: pytest
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: coverage
+          path: coverage.xml
 
-      - name: 📦 Provision Linting Binaries
-        run: |
-          python -m pip install --upgrade pip
-          pip install flake8
+  package-container:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install build && python -m build
+      - run: docker build -t fer:${{ github.sha }} .
 
-      # FIXED: Expanded exclusion mask array to cleanly absorb structural script formats
-      - name: 🚀 Verify PEP 8 Alignment
-        run: flake8 . --ignore=W293,W291,F401,E302,E305,E701,E203,E501,E261,W292,W391,E221,E201,E202,E241,E401,E402,E226,E231,E722 --exclude=venv,.git,__pycache__,build,dist
+  security:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: python -m pip install --upgrade "setuptools>=83" && pip install -e ".[dev]"
+      - run: bandit -c pyproject.toml -r src/api src/src
+      - run: pip-audit --skip-editable
+      - run: pip-licenses --format=json --output-file=licenses.json
+      - uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - uses: anchore/sbom-action@v0
+        with:
+          path: .
+          format: spdx-json
+          output-file: sbom.spdx.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: security-inventory
+          path: |
+            licenses.json
+            sbom.spdx.json
+
+  benchmark:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -e ".[dev]"
+      - run: pytest tests/production/test_benchmark.py --benchmark-only --benchmark-json=benchmarks/latest.json --no-cov
+      - uses: actions/upload-artifact@v4
+        with:
+          name: benchmark-${{ github.sha }}
+          path: benchmarks/latest.json

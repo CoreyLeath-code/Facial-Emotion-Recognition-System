@@ -1,4 +1,3 @@
-import io
 import logging
 from typing import Optional
 
@@ -25,7 +24,7 @@ class EmotionPipeline:
         except Exception as e:
             self.model = None
             self._load_error = str(e)
-            logger.warning(f"EmotionPipeline: model not loaded — {e}")
+            logger.warning(f"EmotionPipeline: model not loaded â€” {e}")
 
         # Standard CNN preprocessing
         self.transform = transforms.Compose([
@@ -35,7 +34,7 @@ class EmotionPipeline:
             transforms.Normalize(mean=[0.5], std=[0.5])
         ])
 
-        # Emotion classes — update to match your model
+        # Emotion classes â€” update to match your model
         self.labels = ["angry", "disgust", "fear", "happy", "sad", "surprise", "neutral"]
 
     def _load_model(self, path):
@@ -43,7 +42,7 @@ class EmotionPipeline:
         Loads trained PyTorch model.
         """
         try:
-            model = torch.load(path, map_location=self.device)
+            model = torch.load(path, map_location=self.device, weights_only=True)
             return model
         except Exception as e:
             raise RuntimeError(f"Error loading model: {str(e)}")
@@ -54,23 +53,19 @@ class EmotionPipeline:
         """
         return self.transform(image).unsqueeze(0).to(self.device)
 
-    def predict(self, image_file) -> list:
+    def predict_image(self, image: Image.Image) -> list[str]:
         """
         Full inference pipeline:
         1. Load image
         2. Preprocess
         3. Forward pass through CNN
-        4. Convert logits → probabilities
+        4. Convert logits â†’ probabilities
         5. Return top predicted labels
         """
         if self.model is None:
             raise RuntimeError(
                 f"Model weights not loaded. {self._load_error}"
             )
-
-        # Load image bytes
-        image_bytes = image_file.file.read()
-        image = Image.open(io.BytesIO(image_bytes)).convert("RGB")
 
         # Preprocess
         inputs = self.preprocess(image)
@@ -80,16 +75,21 @@ class EmotionPipeline:
             logits = self.model(inputs)
             probs = F.softmax(logits, dim=1).cpu().numpy()[0]
 
-        # Sort probabilities high → low
+        # Sort probabilities high â†’ low
         ranked = sorted(
             list(zip(self.labels, probs)),
             key=lambda x: x[1],
             reverse=True
         )
 
-        # Return only labels (top 1–2 predictions)
+        # Return only labels (top 1â€“2 predictions)
         top_predictions = [ranked[0][0]]
         if ranked[1][1] > 0.20:  # include second emotion if confident
             top_predictions.append(ranked[1][0])
 
         return top_predictions
+
+    def predict(self, image_file) -> list[str]:
+        """Backward-compatible adapter for file-like callers."""
+        image = Image.open(image_file.file).convert("RGB")
+        return self.predict_image(image)

@@ -1,9 +1,12 @@
 import os
+import logging
 from typing import List, Optional
 from pydantic import BaseModel
 
 # If using OpenAI or MCP-compatible models
 from openai import OpenAI
+
+logger = logging.getLogger(__name__)
 
 
 class LLMResponse(BaseModel):
@@ -78,6 +81,7 @@ class EmotionLLMExplainer:
             explanation = response.choices[0].message.content
             return explanation
 
-        except Exception as e:
-            return f"LLM Error: {str(e)}"
+        except Exception:
+            logger.exception("LLM explanation generation failed")
+            return "Unable to generate explanation at this time."
 

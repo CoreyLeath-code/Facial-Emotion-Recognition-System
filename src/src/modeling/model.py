@@ -1,6 +1,6 @@
 """
 ================================================================================
-FACIAL EMOTION RECOGNITION — MODEL ARCHITECTURE & INFERENCE LAYER
+FACIAL EMOTION RECOGNITION â€” MODEL ARCHITECTURE & INFERENCE LAYER
 Author: Corey Leath (Trojan3877)
 
 Purpose:
@@ -88,10 +88,10 @@ class EmotionCNN(nn.Module):
             O(n * k^2 * c) per conv layer.
 
         Design Note:
-            No softmax here — applied during inference only.
+            No softmax here â€” applied during inference only.
         """
-        x = self.pool(F.relu(self.conv1(x)))  # (B,1,48,48) → (B,32,24,24)
-        x = self.pool(F.relu(self.conv2(x)))  # → (B,64,12,12)
+        x = self.pool(F.relu(self.conv1(x)))  # (B,1,48,48) â†’ (B,32,24,24)
+        x = self.pool(F.relu(self.conv2(x)))  # â†’ (B,64,12,12)
         x = torch.flatten(x, start_dim=1)
         x = F.relu(self.fc1(x))
         x = self.fc2(x)
@@ -165,7 +165,7 @@ class EmotionModel:
             logger.info("Running on CPU.")
 
         try:
-            state_dict = torch.load(model_path, map_location=self.device)
+            state_dict = torch.load(model_path, map_location=self.device, weights_only=True)
             self.model.load_state_dict(state_dict)
         except Exception as e:
             raise RuntimeError(f"Failed to load model weights: {e}")
