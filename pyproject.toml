@@ -1,11 +1,65 @@
-[tool.black]
+[build-system]
+requires = ["setuptools>=83", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "facial-emotion-recognition-system"
+version = "0.2.0"
+description = "PyTorch facial-emotion inference service"
+readme = "README.md"
+requires-python = ">=3.10,<3.13"
+license = "MIT"
+dependencies = [
+  "fastapi>=0.116,<1",
+  "pillow>=11,<13",
+  "pydantic>=2.10,<3",
+  "python-multipart>=0.0.20,<1",
+  "torch>=2.5,<3",
+  "torchvision>=0.20,<1",
+  "uvicorn[standard]>=0.34,<1",
+]
+
+[project.optional-dependencies]
+vision = ["numpy>=1.26,<3", "opencv-python-headless>=4.10,<5"]
+training = ["pandas>=2.2,<4", "scikit-learn>=1.6,<2", "mlflow>=2.20,<4", "pyyaml>=6,<7"]
+llm = ["openai>=1.60,<3"]
+dashboard = ["streamlit>=1.42,<2", "matplotlib>=3.9,<4"]
+dev = [
+  "bandit>=1.8,<2",
+  "httpx>=0.28,<1",
+  "mypy>=1.15,<3",
+  "pip-audit>=2.8,<3",
+  "pip-licenses>=5,<6",
+  "pytest>=8.3,<10",
+  "pytest-benchmark>=5,<6",
+  "pytest-cov>=6,<8",
+  "ruff>=0.11,<1",
+  "types-Pillow>=10,<13",
+]
+
+[tool.setuptools.packages.find]
+include = ["src*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests/production"]
+addopts = "--strict-markers --cov=src.api.validation --cov=src.src.config.settings --cov=src.src.rag.context_retriever --cov-report=term-missing --cov-report=xml --cov-fail-under=90"
+
+[tool.ruff]
 line-length = 100
-target-version = ["py310"]
+target-version = "py310"
+exclude = ["notebooks", "work"]
 
-[tool.flake8]
-max-line-length = 100
-extend-ignore = ["E203","W503"]
-exclude = [".git","__pycache__","build","dist",".venv","venv",".ipynb_checkpoints"]
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]
 
-[tool.isort]
-profile = "black"
+[tool.coverage.run]
+branch = true
+
+[tool.mypy]
+python_version = "3.10"
+strict = true
+packages = ["src.api.validation", "src.src.config.settings", "src.src.rag.context_retriever"]
+disallow_untyped_decorators = false
+
+[tool.bandit]
+exclude_dirs = ["tests", "notebooks"]
