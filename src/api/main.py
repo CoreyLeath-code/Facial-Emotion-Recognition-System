@@ -1,3 +1,4 @@
+
 from contextlib import asynccontextmanager
 from typing import Optional
 
@@ -112,16 +113,9 @@ async def explain_emotions(request: EmotionRequest):
     rag_context = rag.retrieve(request.emotions)
 
     # Step 2: Generate LLM explanation
-    explanation = llm.explain_emotions(
-        emotions=request.emotions,
-        rag_context=rag_context
-    )
+    explanation = llm.explain_emotions(emotions=request.emotions, rag_context=rag_context)
 
-    return {
-        "emotions": request.emotions,
-        "context_used": rag_context,
-        "explanation": explanation
-    }
+    return {"emotions": request.emotions, "context_used": rag_context, "explanation": explanation}
 
 
 @app.post("/full-analysis")
@@ -141,21 +135,19 @@ async def full_analysis(image: UploadFile = File(...)):
     except ValueError as exc:
         raise HTTPException(status_code=422, detail=str(exc)) from exc
     predictions = pipeline.predict_image(decoded)
-    
+
     rag_context = rag.retrieve(predictions)
 
-    explanation = llm.explain_emotions(
-        emotions=predictions,
-        rag_context=rag_context
-    )
+    explanation = llm.explain_emotions(emotions=predictions, rag_context=rag_context)
 
-    return {
-        "predictions": predictions,
-        "context_used": rag_context,
-        "explanation": explanation
-    }
+    return {"predictions": predictions, "context_used": rag_context, "explanation": explanation}
 
 
 # Run the server (local development)
 if __name__ == "__main__":
-    uvicorn.run("src.api.main:app", host="0.0.0.0", port=8000, reload=True)
+    uvicorn.run(
+        "src.api.main:app",
+        host=settings.HOST,
+        port=settings.PORT,
+        reload=True,
+    )
