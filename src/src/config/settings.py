@@ -1,4 +1,3 @@
-
 """
 ===============================================================================
 FACIAL EMOTION RECOGNITION â€” CONFIGURATION (CV SYSTEM ONLY)
