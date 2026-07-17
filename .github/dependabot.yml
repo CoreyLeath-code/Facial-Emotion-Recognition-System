@@ -9,3 +9,7 @@ updates:
   - package-ecosystem: docker
     directory: /
     schedule: {interval: weekly}
+    ignore:
+      # PyTorch and this project currently support Python 3.10-3.12.
+      - dependency-name: python
+        update-types: ["version-update:semver-major"]
