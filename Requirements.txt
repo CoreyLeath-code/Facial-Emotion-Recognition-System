@@ -1,12 +1,2 @@
-# Deep learning runtime engines
-tensorflow>=2.15.0
-opencv-python-headless>=4.9.0.80
-
-# Distributed system tracing and telemetry
-mlflow>=2.11.3
-
-# Dashboarding & user visualization layers
-streamlit>=1.30.0
-pandas>=2.2.1
-numpy>=1.24.2
-matplotlib>=3.8.2
+# Compatibility entrypoint; pyproject.toml is canonical.
+-e .
