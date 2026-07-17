@@ -1,7 +1,3 @@
-import json
-from typing import List
-
-
 class EmotionContextRetriever:
     """
     Lightweight RAG retriever for psychological explanations tied to emotion classes.
@@ -9,7 +5,7 @@ class EmotionContextRetriever:
     to FAISS/Pinecone later.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         # Psychology-backed context examples
         # In a real RAG pipeline, these would be chunked embeddings.
         self.psychology_database = {
@@ -39,12 +35,13 @@ class EmotionContextRetriever:
                 "raised eyebrows, wide eyes, and a brief pause in movement."
             ),
             "disgust": (
-                "Disgust often emerges as a reaction to unpleasant or morally objectionable stimuli. "
+                "Disgust often emerges as a reaction to unpleasant or morally "
+                "objectionable stimuli. "
                 "It is associated with nose wrinkling, eye narrowing, and head turning."
-            )
+            ),
         }
 
-    def retrieve(self, emotions: List[str]) -> str:
+    def retrieve(self, emotions: list[str]) -> str:
         """
         Retrieve psychology context for a list of predicted emotions.
 
