@@ -1,13 +1,23 @@
-version: '3.8'
-
 services:
-  emotion-recognition:
+  api:
     build: .
-    container_name: facial_emotion_platform
+    image: facial-emotion-recognition:local
     ports:
-      - "8501:8501"
-    volumes:
-      - .:/workspace
+      - "8000:8000"
     environment:
-      - MLFLOW_TRACKING_URI=http://localhost:5000
-    restart: unless-stopped
+      MODEL_PATH: /models/emotion_model.pt
+      ALLOWED_ORIGINS: http://localhost:8501
+      MAX_UPLOAD_BYTES: "5242880"
+    volumes:
+      - ./artifacts/models:/models:ro
+    read_only: true
+    tmpfs:
+      - /tmp:size=64m,mode=1777
+    security_opt:
+      - no-new-privileges:true
+    cap_drop: [ALL]
+    deploy:
+      resources:
+        limits:
+          cpus: "2.0"
+          memory: 2G
