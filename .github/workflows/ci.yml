@@ -56,7 +56,7 @@ jobs:
       - run: bandit -c pyproject.toml -r src/api src/src
       - run: pip-audit --skip-editable
       - run: pip-licenses --format=json --output-file=licenses.json
-      - uses: gitleaks/gitleaks-action@v2
+      - uses: gitleaks/gitleaks-action@v3
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - uses: anchore/sbom-action@v0
