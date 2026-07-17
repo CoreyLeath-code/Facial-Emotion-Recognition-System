@@ -1,3 +1,4 @@
+
 """
 ===============================================================================
 FACIAL EMOTION RECOGNITION â€” CONFIGURATION (CV SYSTEM ONLY)
@@ -36,7 +37,7 @@ class Settings:
     # --------------------------------------------------------------------------
     # API SERVER CONFIG
     # --------------------------------------------------------------------------
-    HOST: str = os.getenv("HOST", "0.0.0.0")
+    HOST: str = os.getenv("HOST", "127.0.0.1")
     PORT: int = int(os.getenv("PORT", 8000))
 
     def validate(self) -> None:
