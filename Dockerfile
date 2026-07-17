@@ -1,4 +1,4 @@
-FROM python:3.11-slim AS builder
+FROM python:3.14-slim AS builder
 
 WORKDIR /build
 COPY pyproject.toml README.md LICENSE ./
@@ -6,7 +6,7 @@ COPY src/ src/
 RUN python -m pip install --no-cache-dir --upgrade pip build "setuptools>=83" && \
     python -m build --wheel
 
-FROM python:3.11-slim AS runtime
+FROM python:3.14-slim AS runtime
 
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
