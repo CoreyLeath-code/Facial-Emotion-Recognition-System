@@ -8,6 +8,8 @@ import uvicorn
 from src.pipeline.inference import EmotionPipeline
 from src.src.rag.context_retriever import EmotionContextRetriever
 from src.src.llm_explainer.explain import EmotionLLMExplainer
+from src.api.validation import validate_image_upload
+from src.src.config.settings import settings
 
 
 # ---------------------------------------------------------------------------
@@ -42,15 +44,16 @@ app = FastAPI(
 # CORS Support
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_origins=list(settings.ALLOWED_ORIGINS),
+    allow_credentials=False,
+    allow_methods=["GET", "POST"],
+    allow_headers=["Content-Type", "Authorization"],
 )
 
 
 # Request Model
 class EmotionRequest(BaseModel):
-    emotions: list
+    emotions: list[str]
 
 
 @app.get("/")
@@ -58,21 +61,21 @@ def home():
     return {"status": "online", "message": "Emotion AI API Running Successfully!"}
 
 
-@app.get("/health")
+@app.get("/health/live")
 def health():
     """
     Health check endpoint.
     Returns model status so orchestrators can determine readiness.
     """
+    return {"status": "ok"}
+
+
+@app.get("/health/ready")
+def readiness():
     model_ready = pipeline is not None and pipeline.model is not None
-    return {
-        "status": "ok",
-        "model_loaded": model_ready,
-        "model_error": (
-            "Model weights not found. Train the model with "
-            "`python src/train.py --model cnn` and ensure MODEL_PATH is set correctly."
-        ) if not model_ready else None,
-    }
+    if not model_ready:
+        raise HTTPException(status_code=503, detail="Model is not loaded")
+    return {"status": "ready", "model_loaded": True}
 
 
 @app.post("/predict")
@@ -82,7 +85,12 @@ async def predict_emotion(image: UploadFile = File(...)):
     """
     if pipeline is None or pipeline.model is None:
         raise HTTPException(status_code=503, detail="Model not loaded.")
-    predictions = pipeline.predict(image)
+    payload = await image.read(settings.MAX_UPLOAD_BYTES + 1)
+    try:
+        decoded = validate_image_upload(payload, image.content_type, settings.MAX_UPLOAD_BYTES)
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+    predictions = pipeline.predict_image(decoded)
     return {"predictions": predictions}
 
 
@@ -127,7 +135,12 @@ async def full_analysis(image: UploadFile = File(...)):
     if pipeline is None or pipeline.model is None:
         raise HTTPException(status_code=503, detail="Model not loaded.")
 
-    predictions = pipeline.predict(image)
+    payload = await image.read(settings.MAX_UPLOAD_BYTES + 1)
+    try:
+        decoded = validate_image_upload(payload, image.content_type, settings.MAX_UPLOAD_BYTES)
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+    predictions = pipeline.predict_image(decoded)
     
     rag_context = rag.retrieve(predictions)
 
