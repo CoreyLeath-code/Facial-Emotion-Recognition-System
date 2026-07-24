@@ -8,6 +8,55 @@ A PyTorch/FastAPI service for seven-class facial-expression classification on FE
 
 > Facial expressions do not reliably reveal internal emotional state. This project is for research and demonstration, not medical diagnosis or consequential decisions.
 
+
+## Production Readiness Guide
+
+> This section is the portfolio audit entry point for **Facial-Emotion-Recognition-System**. It describes an engineering promotion path; it is not a claim that the repository is already production-authorized.
+
+[![CI](https://img.shields.io/github/actions/workflow/status/CoreyLeath-code/Facial-Emotion-Recognition-System/ci.yml?branch=main&label=CI)](https://github.com/CoreyLeath-code/Facial-Emotion-Recognition-System/actions) [![License](https://img.shields.io/github/license/CoreyLeath-code/Facial-Emotion-Recognition-System)](https://github.com/CoreyLeath-code/Facial-Emotion-Recognition-System/blob/main/LICENSE)
+
+### Architecture flowchart
+
+```mermaid
+flowchart LR
+    Client --> Gateway --> Services[API + workers] --> Events[(Event bus)] --> Store[(State)]
+```
+
+### Quickstart and local validation
+
+The supported local path should be reproducible from a clean checkout. The inferred stack for this repository is **Python/platform services**.
+
+```bash
+python -m venv .venv && source .venv/bin/activate && pip install -r requirements.txt
+pytest -q
+```
+
+If the project uses external services, model artifacts, cloud credentials, or private data, start them through documented local fixtures or mocks. Never place secrets or identifiable records in the repository.
+
+### Research-style metrics and benchmarks
+
+| Evidence | Required record |
+|---|---|
+| Correctness | Test command, commit SHA, runtime, and pass/fail result |
+| Performance | Warm-up, sample count, concurrency, median, p95, p99, throughput, and memory |
+| Data/model quality | Dataset version, split strategy, leakage controls, calibration, subgroup results, and uncertainty |
+| Runtime | Image digest, health-check latency, resource limits, and rollback target |
+| Security | Dependency, secret, SAST, container, and SBOM results |
+
+A benchmark number belongs in a versioned artifact tied to a commit and hardware/runtime description. Engineering benchmarks must not be presented as clinical, financial, safety, or model-quality validation without the appropriate domain evidence.
+
+### Extended Q&A
+
+**What is production-ready for this repository?**  
+A reproducible build, tested public contract, controlled configuration, observable runtime, documented security boundary, versioned artifacts, and a tested rollback path.
+
+**What must remain explicit?**  
+The intended use, excluded use, data/credential handling, model or algorithm limitations, and which metrics are measured versus aspirational.
+
+**What should be completed next?**  
+Use the linked production-readiness issue for this repository as the checklist. Resolve missing tests, deployment instructions, observability, supply-chain controls, and release evidence before attaching a production claim.
+
+
 ## Architecture
 
 ```mermaid
