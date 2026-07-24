@@ -1,20 +1,44 @@
 name: CodeQL
 on:
   push:
-    branches: [main]
   pull_request:
-    branches: [main]
   schedule:
-    - cron: "23 7 * * 1"
+    - cron: '23 3 * * 1'
 permissions:
   contents: read
   security-events: write
 jobs:
+  detect:
+    runs-on: ubuntu-latest
+    outputs:
+      languages: ${{ steps.lang.outputs.languages }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: lang
+        shell: bash
+        run: |
+          langs=''
+          find . -name '*.py' -print -quit | grep -q . && langs="$langs python"
+          find . ( -name '*.js' -o -name '*.ts' -o -name '*.tsx' ) -print -quit | grep -q . && langs="$langs javascript-typescript"
+          [ -f go.mod ] && langs="$langs go"
+          [ -f Cargo.toml ] && langs="$langs rust"
+          [ -f pom.xml ] || [ -f build.gradle ] && langs="$langs java-kotlin"
+          find . ( -name '*.c' -o -name '*.cpp' -o -name '*.h' ) -print -quit | grep -q . && langs="$langs c-cpp"
+          [ -n "$langs" ] || langs=' python'
+          langs="${langs# }"
+          echo "languages=$(printf '%s
+' $langs | jq -Rsc 'split("\n")[:-1]')" >> "$GITHUB_OUTPUT"
   analyze:
+    needs: detect
+    strategy:
+      fail-fast: false
+      matrix:
+        language: ${{ fromJSON(needs.detect.outputs.languages) }}
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7
-      - uses: github/codeql-action/init@v4
+      - uses: actions/checkout@v4
+      - uses: github/codeql-action/init@v3
         with:
-          languages: python
-      - uses: github/codeql-action/analyze@v4
+          languages: ${{ matrix.language }}
+      - uses: github/codeql-action/autobuild@v3
+      - uses: github/codeql-action/analyze@v3
