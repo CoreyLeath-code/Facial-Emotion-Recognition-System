@@ -17,17 +17,18 @@ jobs:
       - id: lang
         shell: bash
         run: |
+          set -euo pipefail
           langs=''
-          find . -name '*.py' -print -quit | grep -q . && langs="$langs python"
-          find . ( -name '*.js' -o -name '*.ts' -o -name '*.tsx' ) -print -quit | grep -q . && langs="$langs javascript-typescript"
+          [ -n "$(find . -name '*.py' -print -quit)" ] && langs="$langs python"
+          [ -n "$(find . -name '*.js' -print -quit)" ] || [ -n "$(find . -name '*.ts' -print -quit)" ] && langs="$langs javascript-typescript"
           [ -f go.mod ] && langs="$langs go"
           [ -f Cargo.toml ] && langs="$langs rust"
           [ -f pom.xml ] || [ -f build.gradle ] && langs="$langs java-kotlin"
-          find . ( -name '*.c' -o -name '*.cpp' -o -name '*.h' ) -print -quit | grep -q . && langs="$langs c-cpp"
+          [ -n "$(find . -name '*.c' -print -quit)" ] || [ -n "$(find . -name '*.cpp' -print -quit)" ] && langs="$langs c-cpp"
           [ -n "$langs" ] || langs=' python'
-          langs="${langs# }"
-          echo "languages=$(printf '%s
-' $langs | jq -Rsc 'split("\n")[:-1]')" >> "$GITHUB_OUTPUT"
+          json="$(printf '%s\n' $langs | jq -Rsc 'split("
+") | map(select(length > 0))')"
+          echo "languages=$json" >> "$GITHUB_OUTPUT"
   analyze:
     needs: detect
     strategy:
