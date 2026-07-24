@@ -26,8 +26,7 @@ jobs:
           [ -f pom.xml ] || [ -f build.gradle ] && langs="$langs java-kotlin"
           [ -n "$(find . -name '*.c' -print -quit)" ] || [ -n "$(find . -name '*.cpp' -print -quit)" ] && langs="$langs c-cpp"
           [ -n "$langs" ] || langs=' python'
-          json="$(printf '%s\n' $langs | jq -Rsc 'split("
-") | map(select(length > 0))')"
+          json="$(jq -cn --arg l "$langs" '$l | split(" ") | map(select(length > 0))')"
           echo "languages=$json" >> "$GITHUB_OUTPUT"
   analyze:
     needs: detect
