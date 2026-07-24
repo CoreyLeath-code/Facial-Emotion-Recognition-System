@@ -1,0 +1,18 @@
+name: Security
+on:
+  push:
+  pull_request:
+  schedule: [{cron: '41 4 * * 1'}]
+permissions: {contents: read, security-events: write}
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: {fetch-depth: 0}
+      - uses: gitleaks/gitleaks-action@v2
+      - uses: aquasecurity/trivy-action@master
+        with: {scan-type: fs, scan-ref: ., format: sarif, output: trivy-results.sarif, ignore-unfixed: true, severity: 'HIGH,CRITICAL', exit-code: '1'}
+      - uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with: {sarif_file: trivy-results.sarif}
