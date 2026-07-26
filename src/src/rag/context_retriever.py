@@ -9,9 +9,7 @@ class EmotionContextRetriever:
             "EMOTION_CONTEXT_BACKEND", "local"
         ).strip().lower()
         if self.backend not in {"local", "pinecone"}:
-            raise ValueError(
-                "EMOTION_CONTEXT_BACKEND must be 'local' or 'pinecone'."
-            )
+            raise ValueError("EMOTION_CONTEXT_BACKEND must be 'local' or 'pinecone'.")
 
         self.index = None
         self.namespace = os.getenv(
