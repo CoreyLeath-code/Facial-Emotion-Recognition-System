@@ -5,12 +5,18 @@ class EmotionContextRetriever:
     """Local psychology context with an opt-in Pinecone backend."""
 
     def __init__(self) -> None:
-        self.backend = os.getenv("EMOTION_CONTEXT_BACKEND", "local").strip().lower()
+        self.backend = os.getenv(
+            "EMOTION_CONTEXT_BACKEND", "local"
+        ).strip().lower()
         if self.backend not in {"local", "pinecone"}:
-            raise ValueError("EMOTION_CONTEXT_BACKEND must be 'local' or 'pinecone'.")
+            raise ValueError(
+                "EMOTION_CONTEXT_BACKEND must be 'local' or 'pinecone'."
+            )
 
         self.index = None
-        self.namespace = os.getenv("PINECONE_NAMESPACE", "emotion-context").strip()
+        self.namespace = os.getenv(
+            "PINECONE_NAMESPACE", "emotion-context"
+        ).strip()
         if self.backend == "pinecone":
             from pinecone import Pinecone
 
@@ -62,7 +68,9 @@ class EmotionContextRetriever:
 
             query = " ".join(emotions)
             vector = OpenAI().embeddings.create(
-                model=os.getenv("EMBEDDING_MODEL", "text-embedding-3-small"),
+                model=os.getenv(
+                    "EMBEDDING_MODEL", "text-embedding-3-small"
+                ),
                 input=query,
             ).data[0].embedding
             response = self.index.query(
