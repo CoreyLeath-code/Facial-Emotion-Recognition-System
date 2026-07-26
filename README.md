@@ -3,6 +3,7 @@
 [![CI](https://github.com/CoreyLeath-code/Facial-Emotion-Recognition-System/actions/workflows/ci.yml/badge.svg)](https://github.com/CoreyLeath-code/Facial-Emotion-Recognition-System/actions/workflows/ci.yml)
 [![CodeQL](https://github.com/CoreyLeath-code/Facial-Emotion-Recognition-System/actions/workflows/codeql.yml/badge.svg)](https://github.com/CoreyLeath-code/Facial-Emotion-Recognition-System/actions/workflows/codeql.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![Pinecone](https://img.shields.io/badge/Pinecone-Optional%20Context-00A98F?logo=pinecone&logoColor=white)](https://www.pinecone.io/)
 
 A PyTorch/FastAPI service for seven-class facial-expression classification on FER-style 48x48 grayscale inputs. The supported production boundary validates uploaded images, loads reviewed state dictionaries, and exposes separate liveness and readiness probes.
 
@@ -15,7 +16,13 @@ A PyTorch/FastAPI service for seven-class facial-expression classification on FE
 
 [![CI](https://img.shields.io/github/actions/workflow/status/CoreyLeath-code/Facial-Emotion-Recognition-System/ci.yml?branch=main&label=CI)](https://github.com/CoreyLeath-code/Facial-Emotion-Recognition-System/actions) [![License](https://img.shields.io/github/license/CoreyLeath-code/Facial-Emotion-Recognition-System)](https://github.com/CoreyLeath-code/Facial-Emotion-Recognition-System/blob/main/LICENSE)
 
-### Architecture flowchart
+### Optional Pinecone context retrieval
+
+The psychology-context component supports a hosted Pinecone index without changing the deterministic default. Install `requirements-pinecone.txt`, set `EMOTION_CONTEXT_BACKEND=pinecone`, and provide the Pinecone/OpenAI secrets through deployment configuration. Keep `local` for CI and offline tests.
+
+Pinecone evaluations must report the embedding model, index dimension/metric, corpus revision, top-k, context precision/recall, latency percentiles, error rate, and cost. The emotion classifier remains a research/demonstration system and must not be used to infer internal emotional state or make consequential decisions.
+
+## Architecture flowchart
 
 ```mermaid
 flowchart LR
