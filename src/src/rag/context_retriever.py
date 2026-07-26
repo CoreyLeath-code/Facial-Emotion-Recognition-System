@@ -1,11 +1,32 @@
 class EmotionContextRetriever:
     """
-    Lightweight RAG retriever for psychological explanations tied to emotion classes.
-    This simulates vector retrieval for a GitHub portfolio project but can be upgraded
-    to FAISS/Pinecone later.
+    Local psychology-context retriever with an opt-in Pinecone backend.
+
+    The local dictionary remains the deterministic default. Pinecone is used only
+    when EMOTION_CONTEXT_BACKEND=pinecone and the hosted index is configured.
     """
 
     def __init__(self) -> None:
+        self.backend = os.getenv("EMOTION_CONTEXT_BACKEND", "local").strip().lower()
+        if self.backend not in {"local", "pinecone"}:
+            raise ValueError("EMOTION_CONTEXT_BACKEND must be 'local' or 'pinecone'.")
+
+        self.index = None
+        if self.backend == "pinecone":
+            from pinecone import os
+
+import Pinecone
+
+            api_key = os.getenv("PINECONE_API_KEY", "").strip()
+            index_name = os.getenv("PINECONE_INDEX_NAME", "").strip()
+            self.namespace = os.getenv("PINECONE_NAMESPACE", "emotion-context").strip()
+            if not api_key or not index_name or not self.namespace:
+                raise RuntimeError(
+                    "Pinecone backend requires PINECONE_API_KEY, "
+                    "PINECONE_INDEX_NAME, and PINECONE_NAMESPACE."
+                )
+            self.index = Pinecone(api_key=api_key).Index(index_name)
+
         # Psychology-backed context examples
         # In a real RAG pipeline, these would be chunked embeddings.
         self.psychology_database = {
@@ -54,6 +75,26 @@ class EmotionContextRetriever:
         -------
         str : Combined explanatory context
         """
+
+        if self.backend == "pinecone":
+            from openai import OpenAI
+
+            query = " ".join(emotions)
+            vector = OpenAI().embeddings.create(
+                model=os.getenv("EMBEDDING_MODEL", "text-embedding-3-small"),
+                input=query,
+            ).data[0].embedding
+            response = self.index.query(
+                vector=vector,
+                top_k=min(len(emotions) or 1, 5),
+                include_metadata=True,
+                namespace=self.namespace,
+            )
+            return " ".join(
+                match.metadata.get("text", "")
+                for match in response.matches
+                if match.metadata and match.metadata.get("text")
+            )
 
         context_chunks = []
 
