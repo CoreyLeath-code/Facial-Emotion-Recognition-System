@@ -1,13 +1,28 @@
+import os
+
+
 class EmotionContextRetriever:
-    """
-    Lightweight RAG retriever for psychological explanations tied to emotion classes.
-    This simulates vector retrieval for a GitHub portfolio project but can be upgraded
-    to FAISS/Pinecone later.
-    """
+    """Local psychology context with an opt-in Pinecone backend."""
 
     def __init__(self) -> None:
-        # Psychology-backed context examples
-        # In a real RAG pipeline, these would be chunked embeddings.
+        self.backend = os.getenv("EMOTION_CONTEXT_BACKEND", "local").strip().lower()
+        if self.backend not in {"local", "pinecone"}:
+            raise ValueError("EMOTION_CONTEXT_BACKEND must be 'local' or 'pinecone'.")
+
+        self.index = None
+        self.namespace = os.getenv("PINECONE_NAMESPACE", "emotion-context").strip()
+        if self.backend == "pinecone":
+            from pinecone import Pinecone  # type: ignore[import-not-found]
+
+            api_key = os.getenv("PINECONE_API_KEY", "").strip()
+            index_name = os.getenv("PINECONE_INDEX_NAME", "").strip()
+            if not api_key or not index_name or not self.namespace:
+                raise RuntimeError(
+                    "Pinecone backend requires PINECONE_API_KEY, "
+                    "PINECONE_INDEX_NAME, and PINECONE_NAMESPACE."
+                )
+            self.index = Pinecone(api_key=api_key).Index(index_name)
+
         self.psychology_database = {
             "happy": (
                 "Happiness is associated with dopamine release, social bonding, "
@@ -35,34 +50,45 @@ class EmotionContextRetriever:
                 "raised eyebrows, wide eyes, and a brief pause in movement."
             ),
             "disgust": (
-                "Disgust often emerges as a reaction to unpleasant or morally "
-                "objectionable stimuli. "
-                "It is associated with nose wrinkling, eye narrowing, and head turning."
+                "Disgust often emerges as a reaction to unpleasant or morally objectionable "
+                "stimuli. It is associated with nose wrinkling, eye narrowing, and head turning."
             ),
         }
 
     def retrieve(self, emotions: list[str]) -> str:
-        """
-        Retrieve psychology context for a list of predicted emotions.
+        """Retrieve psychology context for predicted emotion labels."""
+        if self.backend == "pinecone":
+            from openai import OpenAI  # type: ignore[import-not-found]
 
-        Parameters
-        ----------
-        emotions : list of str
-            Example: ['sad', 'fear']
+            if self.index is None:
+                raise RuntimeError("Pinecone index is not initialized.")
 
-        Returns
-        -------
-        str : Combined explanatory context
-        """
+            query = " ".join(emotions)
+            vector = (
+                OpenAI()
+                .embeddings.create(
+                    model=os.getenv("EMBEDDING_MODEL", "text-embedding-3-small"),
+                    input=query,
+                )
+                .data[0]
+                .embedding
+            )
+            response = self.index.query(
+                vector=vector,
+                top_k=min(len(emotions) or 1, 5),
+                include_metadata=True,
+                namespace=self.namespace,
+            )
+            return " ".join(
+                match.metadata.get("text", "")
+                for match in response.matches
+                if match.metadata and match.metadata.get("text")
+            )
 
-        context_chunks = []
-
-        for emotion in emotions:
-            emotion = emotion.lower().strip()
-            if emotion in self.psychology_database:
-                context_chunks.append(self.psychology_database[emotion])
-            else:
-                context_chunks.append(f"No psychology context available for '{emotion}'.")
-
-        # Merge all context into one unified RAG context block
-        return " ".join(context_chunks)
+        return " ".join(
+            self.psychology_database.get(
+                emotion.lower().strip(),
+                f"No psychology context available for '{emotion}'.",
+            )
+            for emotion in emotions
+        )

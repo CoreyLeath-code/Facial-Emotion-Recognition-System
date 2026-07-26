@@ -41,7 +41,21 @@ jobs:
         with:
           python-version: "3.11"
       - run: pip install build && python -m build
-      - run: docker build -t fer:${{ github.sha }} .
+      - name: Build container with registry retry
+        run: |
+          set -euo pipefail
+          for attempt in 1 2 3; do
+            if docker build -t fer:${{ github.sha }} .; then
+              break
+            fi
+            if [ "$attempt" -eq 3 ]; then
+              echo "Docker build failed after $attempt attempts."
+              exit 1
+            fi
+            delay=$((attempt * 15))
+            echo "Docker registry/build attempt $attempt failed; retrying in $delay seconds."
+            sleep "$delay"
+          done
 
   security:
     runs-on: ubuntu-latest
