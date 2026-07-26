@@ -12,7 +12,7 @@ class EmotionContextRetriever:
         self.index = None
         self.namespace = os.getenv("PINECONE_NAMESPACE", "emotion-context").strip()
         if self.backend == "pinecone":
-            from pinecone import Pinecone
+            from pinecone import Pinecone  # type: ignore[import-not-found]
 
             api_key = os.getenv("PINECONE_API_KEY", "").strip()
             index_name = os.getenv("PINECONE_INDEX_NAME", "").strip()
@@ -58,7 +58,10 @@ class EmotionContextRetriever:
     def retrieve(self, emotions: list[str]) -> str:
         """Retrieve psychology context for predicted emotion labels."""
         if self.backend == "pinecone":
-            from openai import OpenAI
+            from openai import OpenAI  # type: ignore[import-not-found]
+
+            if self.index is None:
+                raise RuntimeError("Pinecone index is not initialized.")
 
             query = " ".join(emotions)
             vector = (
