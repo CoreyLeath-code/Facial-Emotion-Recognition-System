@@ -1,124 +1,100 @@
-# Facial Emotion Recognition System
+# Facial Expression Classification - Reproducible Research Scaffold
 
 [![CI](https://github.com/CoreyLeath-code/Facial-Emotion-Recognition-System/actions/workflows/ci.yml/badge.svg)](https://github.com/CoreyLeath-code/Facial-Emotion-Recognition-System/actions/workflows/ci.yml)
 [![CodeQL](https://github.com/CoreyLeath-code/Facial-Emotion-Recognition-System/actions/workflows/codeql.yml/badge.svg)](https://github.com/CoreyLeath-code/Facial-Emotion-Recognition-System/actions/workflows/codeql.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![Pinecone](https://img.shields.io/badge/Pinecone-Optional%20Context-00A98F?logo=pinecone&logoColor=white)](https://www.pinecone.io/)
+[![Python](https://img.shields.io/badge/python-3.10--3.12-3776AB)](pyproject.toml)
 
-A PyTorch/FastAPI service for seven-class facial-expression classification on FER-style 48x48 grayscale inputs. The supported production boundary validates uploaded images, loads reviewed state dictionaries, and exposes separate liveness and readiness probes.
+## Abstract
 
-> Facial expressions do not reliably reveal internal emotional state. This project is for research and demonstration, not medical diagnosis or consequential decisions.
+This repository contains a PyTorch seven-class facial-expression classifier for FER-style 48x48 grayscale images, a FastAPI inference boundary, and research-oriented reference implementations for stable softmax, cross entropy, confusion matrices, and macro metrics.
 
+No reviewed checkpoint and immutable held-out dataset artifact are committed. Therefore, accuracy, macro F1, calibration, latency, and throughput are intentionally reported as TBD. This is a reproducible research scaffold and engineering demonstration, not a validated emotion-measurement system.
 
-## Production Readiness Guide
+> Facial expressions do not reliably reveal a person's internal emotional state. Do not use this project for medical, employment, education, policing, surveillance, access-control, or other consequential decisions.
 
-> This section is the portfolio audit entry point for **Facial-Emotion-Recognition-System**. It describes an engineering promotion path; it is not a claim that the repository is already production-authorized.
+## Research questions
 
-[![CI](https://img.shields.io/github/actions/workflow/status/CoreyLeath-code/Facial-Emotion-Recognition-System/ci.yml?branch=main&label=CI)](https://github.com/CoreyLeath-code/Facial-Emotion-Recognition-System/actions) [![License](https://img.shields.io/github/license/CoreyLeath-code/Facial-Emotion-Recognition-System)](https://github.com/CoreyLeath-code/Facial-Emotion-Recognition-System/blob/main/LICENSE)
+1. Does the PyTorch CNN improve on a majority-class baseline on the immutable FER2013 PrivateTest split?
+2. How do normalization, CNN capacity, and seed affect macro F1 and per-class recall?
+3. Which classes produce stable confusion patterns across repeated runs?
+4. What accuracy-latency tradeoff appears under fixed weights, hardware, and batch settings?
 
-### Optional Pinecone context retrieval
+## Formal problem statement
 
-The psychology-context component supports a hosted Pinecone index without changing the deterministic default. Install `requirements-pinecone.txt`, set `EMOTION_CONTEXT_BACKEND=pinecone`, and provide the Pinecone/OpenAI secrets through deployment configuration. Keep `local` for CI and offline tests.
+The supported model maps an image x to seven logits z = f_theta(x). Inference turns them into class probabilities with stable softmax and selects the largest probability. Cross-entropy is the training loss represented by the legacy TensorFlow script; its framework mismatch with the supported PyTorch inference path is an explicit limitation.
 
-Pinecone evaluations must report the embedding model, index dimension/metric, corpus revision, top-k, context precision/recall, latency percentiles, error rate, and cost. The emotion classifier remains a research/demonstration system and must not be used to infer internal emotional state or make consequential decisions.
+See [mathematical foundations](docs/MATHEMATICAL_FOUNDATIONS.md) for notation, equations, numerical-stability reasoning, and code mapping. See [complexity analysis](docs/COMPLEXITY_ANALYSIS.md) for convolution, dense-layer, softmax, and metric costs.
 
-## Architecture flowchart
+## Method and reference checks
 
-```mermaid
-flowchart LR
-    Client --> Gateway --> Services[API + workers] --> Events[(Event bus)] --> Store[(State)]
-```
+The supported API path uses the PyTorch EmotionCNN implementation in src/src/modeling/model.py. It emits logits, applies softmax at inference time, and maps the seven indices to expression labels.
 
-### Quickstart and local validation
+The separate src/research/classification_reference.py module is a dependency-free educational baseline. It does not replace optimized PyTorch operations. Its analytical tests verify:
 
-The supported local path should be reproducible from a clean checkout. The inferred stack for this repository is **Python/platform services**.
+- softmax normalization and invariance under a constant logit shift;
+- cross entropy for a uniform two-class case;
+- exact confusion-matrix entries;
+- accuracy, macro precision, macro recall, and macro F1 for a hand-derived example;
+- invalid-input handling.
 
-```bash
-python -m venv .venv && source .venv/bin/activate && pip install -r requirements.txt
-pytest -q
-```
+## Evidence status
 
-If the project uses external services, model artifacts, cloud credentials, or private data, start them through documented local fixtures or mocks. Never place secrets or identifiable records in the repository.
+| Evidence | Status |
+| --- | --- |
+| API upload validation and readiness behavior | Exercised by tests/production in CI |
+| Mathematical softmax/loss/metric reference | Analytically tested |
+| Model quality on held-out data | TBD: no reviewed checkpoint/corpus artifact |
+| Repeated-seed statistics and confidence intervals | TBD |
+| Calibration, subgroup analysis, and robustness | TBD |
+| API latency and throughput | TBD: benchmark protocol only |
 
-### Research-style metrics and benchmarks
+## Reproducibility
 
-| Evidence | Required record |
-|---|---|
-| Correctness | Test command, commit SHA, runtime, and pass/fail result |
-| Performance | Warm-up, sample count, concurrency, median, p95, p99, throughput, and memory |
-| Data/model quality | Dataset version, split strategy, leakage controls, calibration, subgroup results, and uncertainty |
-| Runtime | Image digest, health-check latency, resource limits, and rollback target |
-| Security | Dependency, secret, SAST, container, and SBOM results |
+Create the supported API/test environment:
 
-A benchmark number belongs in a versioned artifact tied to a commit and hardware/runtime description. Engineering benchmarks must not be presented as clinical, financial, safety, or model-quality validation without the appropriate domain evidence.
-
-
-
-**What is production-ready for this repository?**  
-A reproducible build, tested public contract, controlled configuration, observable runtime, documented security boundary, versioned artifacts, and a tested rollback path.
-
-**What must remain explicit?**  
-The intended use, excluded use, data/credential handling, model or algorithm limitations, and which metrics are measured versus aspirational.
-
-**What should be completed next?**  
-Use the linked production-readiness issue for this repository as the checklist. Resolve missing tests, deployment instructions, observability, supply-chain controls, and release evidence before attaching a production claim.
-
-
-## Architecture
-
-```mermaid
-flowchart LR
-  U["JPEG / PNG / WebP"] --> V["Bounded validation"]
-  V --> P["48x48 preprocessing"]
-  P --> T["PyTorch inference"]
-  T --> J["Ranked emotion labels"]
-  W["Read-only versioned weights"] --> T
-```
-
-## Quick start
-
-```bash
+~~~bash
 python -m venv .venv
-source .venv/bin/activate  # Windows: .venv\Scripts\activate
+# Windows PowerShell: .venv\Scripts\Activate.ps1
+# macOS/Linux: source .venv/bin/activate
 pip install -e ".[dev]"
 pytest
-```
+~~~
 
-Run the API after placing reviewed weights at `artifacts/models/emotion_model.pt`:
+The research evidence contract is in [experiments/README.md](experiments/README.md). A future result must record the commit, checkpoint checksum, dataset and split identifiers, preprocessing, seed, versions, device, configuration, and individual-run metrics. Do not replace TBD values without that machine-readable artifact.
 
-```bash
-pip install -e .
-uvicorn src.api.main:app --host 0.0.0.0 --port 8000
-curl http://localhost:8000/health/live
-curl http://localhost:8000/health/ready
-```
+## Engineering architecture
 
-## Metrics dashboard
+~~~mermaid
+flowchart LR
+  I["Image upload"] --> V["Bounded validation"]
+  V --> P["48x48 preprocessing"]
+  P --> M["PyTorch logit model"]
+  M --> R["Ranked expression labels"]
+  W["Reviewed read-only weights"] --> M
+~~~
 
-| Metric | Verified value |
-|---|---:|
-| Supported Python | 3.10-3.12 |
-| Emotion classes | 7 |
-| Input upload limit | 5 MiB default |
-| Hardened boundary tests | 19 passing |
-| Hardened boundary coverage | 100% branch coverage |
-| Validation median latency | 92 microseconds (local) |
-| Model accuracy | Pending reproducible evaluation |
-| Inference latency/throughput | Pending versioned weights benchmark |
-| Security findings | Published by CI |
-| Docker image size | Published by CI/build system |
+The reviewed engineering boundary is the FastAPI inference service: upload validation, liveness/readiness endpoints, typed configuration, CI, package/container build, dependency audit, secret scanning, license inventory, SBOM generation, and CodeQL. Legacy TensorFlow training, Streamlit, RAG/LLM, Snowflake, Airflow, and deployment prototypes are not an integrated supported system.
 
-## Engineering controls
+## Limitations and threats to validity
 
-Pull requests run scoped formatting/linting, strict typing, tests and coverage, package/container builds, dependency and static security audits, secret scanning, license inventory, SBOM generation, CodeQL, and a reproducible benchmark. Optional profiles keep dashboard, training, vision, and LLM dependencies out of the minimal API installation.
+- Training code and supported inference use different frameworks and must be reconciled before an end-to-end result is credible.
+- A random re-split of the full CSV is not a final leakage-safe FER2013 evaluation protocol; preserve Usage partitions.
+- FER-style labels are ambiguous, culturally variable, and not ground truth for a person's internal state.
+- No committed artifact supports accuracy, calibration, demographic, robustness, or systems-performance claims.
+- The repository has duplicate source layouts that increase maintenance and compatibility risk.
 
 ## Documentation
 
-- [Production audit](docs/AUDIT.md)
-- [Deployment guide](docs/DEPLOYMENT.md)
+- [Academic audit](docs/ACADEMIC_AUDIT.md)
+- [Mathematical foundations](docs/MATHEMATICAL_FOUNDATIONS.md)
+- [Complexity analysis](docs/COMPLEXITY_ANALYSIS.md)
+- [Research roadmap](docs/RESEARCH_ROADMAP.md)
 - [Benchmark methodology](docs/BENCHMARKING.md)
+- [Evaluation artifact contract](experiments/README.md)
+- [Deployment audit](docs/AUDIT.md)
 - [Model card](MODEL_CARD.md)
-- [Security and threat model](SECURITY.md)
-- [Ethics](ethics.md)
 
-See the audit before using legacy Streamlit, Kubernetes, Helm, Airflow, Snowflake, MLflow, RAG, or LLM prototypes.
+## License
+
+MIT. See [LICENSE](LICENSE).
