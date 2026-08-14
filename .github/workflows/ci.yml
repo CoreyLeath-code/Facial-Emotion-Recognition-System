@@ -23,7 +23,7 @@ jobs:
           python-version: "3.11"
           cache: pip
       - run: python -m pip install --upgrade pip "setuptools>=83" && pip install -e ".[dev]"
-      - run: ruff format --check src/api/validation.py src/src/config/settings.py src/src/rag/context_retriever.py tests/production
+      - run: ruff format --check src/api/validation.py src/src/config/settings.py src/src/rag/context_retriever.py src/research tests/production
       - run: ruff check src/api/validation.py src/src/config/settings.py src/src/rag/context_retriever.py tests/production
       - run: mypy
       - run: pytest
