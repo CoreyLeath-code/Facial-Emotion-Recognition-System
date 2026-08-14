@@ -42,7 +42,7 @@ def confusion_matrix(
         raise ValueError("targets and predictions must have equal length")
 
     matrix = [[0 for _ in range(num_classes)] for _ in range(num_classes)]
-    for target, prediction in zip(targets, predictions):
+    for target, prediction in zip(targets, predictions, strict=True):
         if not 0 <= target < num_classes or not 0 <= prediction < num_classes:
             raise ValueError("labels must be in [0, num_classes)")
         matrix[target][prediction] += 1
