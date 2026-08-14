@@ -18,7 +18,7 @@ def test_stable_softmax_is_normalized_and_shift_invariant():
 
     assert isclose(sum(baseline), 1.0)
     assert baseline[2] > baseline[1] > baseline[0]
-    assert all(isclose(left, right) for left, right in zip(baseline, shifted))
+    assert all(isclose(left, right) for left, right in zip(baseline, shifted, strict=True))
 
 
 def test_cross_entropy_matches_uniform_two_class_case():
