@@ -1,1 +1,0 @@
-Manual GHCR recovery is implemented in release.yml via workflow_dispatch.
