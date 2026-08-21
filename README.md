@@ -1,9 +1,13 @@
 # Facial Expression Classification - Reproducible Research Scaffold
 
-[![CI](https://github.com/CoreyLeath-code/Facial-Emotion-Recognition-System/actions/workflows/ci.yml/badge.svg)](https://github.com/CoreyLeath-code/Facial-Emotion-Recognition-System/actions/workflows/ci.yml)
-[![CodeQL](https://github.com/CoreyLeath-code/Facial-Emotion-Recognition-System/actions/workflows/codeql.yml/badge.svg)](https://github.com/CoreyLeath-code/Facial-Emotion-Recognition-System/actions/workflows/codeql.yml)
-[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![Python](https://img.shields.io/badge/python-3.10--3.12-3776AB)](pyproject.toml)
+<p align="center">
+  <a href="https://github.com/CoreyLeath-code/Facial-Emotion-Recognition-System/releases/tag/v0.2.0"><img alt="Release v0.2.0" src="https://img.shields.io/badge/release-v0.2.0-blue"></a>
+  <a href="https://github.com/CoreyLeath-code/Facial-Emotion-Recognition-System/actions/workflows/ci.yml"><img alt="CI" src="https://github.com/CoreyLeath-code/Facial-Emotion-Recognition-System/actions/workflows/ci.yml/badge.svg"></a>
+  <a href="https://github.com/CoreyLeath-code/Facial-Emotion-Recognition-System/actions/workflows/codeql.yml"><img alt="CodeQL" src="https://github.com/CoreyLeath-code/Facial-Emotion-Recognition-System/actions/workflows/codeql.yml/badge.svg"></a>
+  <a href="https://github.com/CoreyLeath-code/Facial-Emotion-Recognition-System/pkgs/container/facial-emotion-recognition-system"><img alt="GHCR" src="https://img.shields.io/badge/GHCR-container-2496ED?logo=docker&logoColor=white"></a>
+  <a href="LICENSE"><img alt="License MIT" src="https://img.shields.io/badge/license-MIT-blue.svg"></a>
+  <a href="pyproject.toml"><img alt="Python 3.10-3.12" src="https://img.shields.io/badge/python-3.10--3.12-3776AB?logo=python&logoColor=white"></a>
+</p>
 
 ## Abstract
 
@@ -12,6 +16,16 @@ This repository contains a PyTorch seven-class facial-expression classifier for 
 No reviewed checkpoint and immutable held-out dataset artifact are committed. Therefore, accuracy, macro F1, calibration, latency, and throughput are intentionally reported as TBD. This is a reproducible research scaffold and engineering demonstration, not a validated emotion-measurement system.
 
 > Facial expressions do not reliably reveal a person's internal emotional state. Do not use this project for medical, employment, education, policing, surveillance, access-control, or other consequential decisions.
+
+## Release and package
+
+The current tagged release is **v0.2.0**. Release assets and notes are available from [GitHub Releases](https://github.com/CoreyLeath-code/Facial-Emotion-Recognition-System/releases/tag/v0.2.0). The container publishing workflow targets the GitHub Container Registry package at `ghcr.io/coreyleath-code/facial-emotion-recognition-system`.
+
+~~~bash
+docker pull ghcr.io/coreyleath-code/facial-emotion-recognition-system:0.2.0
+~~~
+
+The container package is an engineering distribution artifact; it does not change the model-evidence limitations documented below.
 
 ## Research questions
 
