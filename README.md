@@ -1,12 +1,24 @@
-# Facial Expression Classification - Reproducible Research Scaffold
+# Facial Expression Classification — Reproducible Research Scaffold
 
 <p align="center">
-  <a href="https://github.com/CoreyLeath-code/Facial-Emotion-Recognition-System/releases/latest"><img alt="Release" src="https://img.shields.io/github/v/release/CoreyLeath-code/Facial-Emotion-Recognition-System?display_name=tag&sort=semver"></a>
-  <a href="https://github.com/CoreyLeath-code/Facial-Emotion-Recognition-System/actions/workflows/ci.yml"><img alt="CI" src="https://github.com/CoreyLeath-code/Facial-Emotion-Recognition-System/actions/workflows/ci.yml/badge.svg"></a>
-  <a href="https://github.com/CoreyLeath-code/Facial-Emotion-Recognition-System/actions/workflows/codeql.yml"><img alt="CodeQL" src="https://github.com/CoreyLeath-code/Facial-Emotion-Recognition-System/actions/workflows/codeql.yml/badge.svg"></a>
-  <a href="https://github.com/CoreyLeath-code/Facial-Emotion-Recognition-System/pkgs/container/facial-emotion-recognition-system"><img alt="GHCR" src="https://img.shields.io/badge/GHCR-container-2496ED?logo=docker&logoColor=white"></a>
-  <a href="LICENSE"><img alt="License MIT" src="https://img.shields.io/badge/license-MIT-blue.svg"></a>
-  <a href="pyproject.toml"><img alt="Python 3.10-3.12" src="https://img.shields.io/badge/python-3.10--3.12-3776AB?logo=python&logoColor=white"></a>
+  <a href="https://github.com/CoreyLeath-code/Facial-Emotion-Recognition-System/actions/workflows/ci.yml">
+    <img alt="CI on main" src="https://github.com/CoreyLeath-code/Facial-Emotion-Recognition-System/actions/workflows/ci.yml/badge.svg?branch=main">
+  </a>
+  <a href="https://github.com/CoreyLeath-code/Facial-Emotion-Recognition-System/actions/workflows/codeql.yml">
+    <img alt="CodeQL on main" src="https://github.com/CoreyLeath-code/Facial-Emotion-Recognition-System/actions/workflows/codeql.yml/badge.svg?branch=main">
+  </a>
+  <a href="https://github.com/CoreyLeath-code/Facial-Emotion-Recognition-System/releases/latest">
+    <img alt="Latest release" src="https://img.shields.io/github/v/release/CoreyLeath-code/Facial-Emotion-Recognition-System?display_name=tag&sort=semver">
+  </a>
+  <a href="https://github.com/CoreyLeath-code/Facial-Emotion-Recognition-System/pkgs/container/facial-emotion-recognition-system">
+    <img alt="GHCR container" src="https://img.shields.io/badge/GHCR-container-2496ED?logo=docker&logoColor=white">
+  </a>
+  <a href="LICENSE">
+    <img alt="License MIT" src="https://img.shields.io/badge/license-MIT-blue.svg">
+  </a>
+  <a href="pyproject.toml">
+    <img alt="Python 3.10 to 3.12" src="https://img.shields.io/badge/python-3.10--3.12-3776AB?logo=python&logoColor=white">
+  </a>
 </p>
 
 ## Abstract
@@ -26,6 +38,13 @@ docker pull ghcr.io/coreyleath-code/facial-emotion-recognition-system:0.2.0
 ~~~
 
 The container package is an engineering distribution artifact; it does not change the model-evidence limitations documented below.
+
+## Recent enhancements
+
+- **Versioned v0.2.0 distribution:** the release workflow validates the semantic tag, package version, changelog, formatting, static types, tests, Python distributions, and container build before publishing release assets.
+- **GHCR publishing and recovery:** tagged releases publish version, minor-version, and `latest` container tags. A manual workflow-dispatch path can validate an existing semantic tag and republish its container image if a tag event was missed; it does not create a new release.
+- **Auditable CI evidence:** CI produces coverage, security-inventory (license and SPDX SBOM), and benchmark JSON artifacts. These artifacts document engineering checks; they are not model-quality or human-emotion validation evidence.
+- **Honest research boundary:** the README, model card, benchmark contract, mathematical foundations, and complexity analysis explicitly distinguish verified software behavior from still-TBD model performance claims.
 
 ## Research questions
 
