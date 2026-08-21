@@ -82,6 +82,31 @@ The separate src/research/classification_reference.py module is a dependency-fre
 | Calibration, subgroup analysis, and robustness | TBD |
 | API latency and throughput | TBD: benchmark protocol only |
 
+## Research benchmark and metric plan
+
+All results below remain **TBD** until a reviewed checkpoint, immutable held-out corpus, and machine-readable run artifact exist. The protocol is designed to make a future result falsifiable and reproducible rather than to imply current model quality.
+
+| Evaluation area | Required metrics | Current result | Evidence required before reporting |
+| --- | --- | --- | --- |
+| Single-label classification | Accuracy; macro and weighted precision, recall, F1; per-class support and recall; confusion matrix | TBD | Immutable test-split identifier/checksum, model checksum, preprocessing and class map |
+| Uncertainty and calibration | Negative log likelihood, Brier score, expected calibration error, reliability diagram | TBD | Fixed calibration procedure and held-out evaluation predictions |
+| Robustness and limitations | Defined perturbation or capture-condition protocol; per-class outcomes; failure analysis | TBD | Versioned protocol, input provenance, and raw prediction records |
+| Inference performance | Warm-up, iterations, batch size, min/mean/median/P95/P99 latency, throughput, peak RSS, GPU memory | TBD | Commit, runtime versions, device, model checksum, and benchmark JSON |
+| Repeated-run variability | Individual seed records, mean, sample standard deviation, confidence interval method | TBD | Fixed seeds and one artifact per run |
+
+The repository’s existing deterministic input-boundary benchmark can be run with:
+
+~~~bash
+pytest tests/production/test_benchmark.py --benchmark-only \
+  --benchmark-json=benchmarks/latest.json --no-cov
+~~~
+
+It is an engineering measurement only. It must record the environment described in [the benchmark guide](docs/BENCHMARKING.md), and it must not be presented as classification accuracy, emotion validity, or a deployment service-level objective.
+
+### Reporting contract
+
+A publishable evaluation must preserve FER2013 Usage partitions rather than re-splitting the full CSV, and must provide the commit SHA, UTC timestamp, model and dataset checksums, preprocessing, class map, seeds, Python/PyTorch versions, device, batch size, individual-run metrics, and confusion matrix. The [evaluation artifact contract](experiments/README.md) defines the required record. Numerical claims belong in a versioned artifact first and in this README only after review.
+
 ## Reproducibility
 
 Create the supported API/test environment:
@@ -95,6 +120,32 @@ pytest
 ~~~
 
 The research evidence contract is in [experiments/README.md](experiments/README.md). A future result must record the commit, checkpoint checksum, dataset and split identifiers, preprocessing, seed, versions, device, configuration, and individual-run metrics. Do not replace TBD values without that machine-readable artifact.
+
+## Questions and answers
+
+### Does this system measure a person’s internal emotional state?
+
+No. It classifies image patterns into the repository’s seven expression-label categories. Expression labels are ambiguous and context-dependent; they are not reliable evidence of internal state.
+
+### Why report macro F1 in addition to accuracy?
+
+Accuracy can be dominated by more frequent classes. Macro F1 averages the per-class F1 values, giving each class equal weight and making uneven performance more visible. It still does not establish calibration, fairness, or real-world validity.
+
+### Why are the model-quality metrics marked TBD?
+
+The repository does not include a reviewed checkpoint plus an immutable held-out corpus artifact. Publishing a numerical score without those inputs, provenance, and per-run evidence would not be reproducible or credible.
+
+### What would make a future benchmark credible?
+
+Use the preserved FER2013 Usage partitions; freeze the checkpoint, dataset, preprocessing, and class map; evaluate multiple fixed seeds where training is involved; write raw predictions and a machine-readable result; and report the full metric set and limitations, not only a headline score.
+
+### What does the API benchmark measure?
+
+It measures only the documented input-boundary/inference engineering path under its recorded environment. Latency or throughput values cannot be compared across machines, batch sizes, model weights, or runtime versions without matching conditions.
+
+### Is the FastAPI service ready for consequential deployment?
+
+No. It provides an engineering inference boundary with validation and readiness behavior. The repository explicitly excludes medical, employment, education, policing, surveillance, access-control, and other consequential uses.
 
 ## Engineering architecture
 
