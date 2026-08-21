@@ -1,7 +1,7 @@
 # Facial Expression Classification - Reproducible Research Scaffold
 
 <p align="center">
-  <a href="https://github.com/CoreyLeath-code/Facial-Emotion-Recognition-System/releases/tag/v0.2.0"><img alt="Release v0.2.0" src="https://img.shields.io/badge/release-v0.2.0-blue"></a>
+  <a href="https://github.com/CoreyLeath-code/Facial-Emotion-Recognition-System/releases/latest"><img alt="Release" src="https://img.shields.io/github/v/release/CoreyLeath-code/Facial-Emotion-Recognition-System?display_name=tag&sort=semver"></a>
   <a href="https://github.com/CoreyLeath-code/Facial-Emotion-Recognition-System/actions/workflows/ci.yml"><img alt="CI" src="https://github.com/CoreyLeath-code/Facial-Emotion-Recognition-System/actions/workflows/ci.yml/badge.svg"></a>
   <a href="https://github.com/CoreyLeath-code/Facial-Emotion-Recognition-System/actions/workflows/codeql.yml"><img alt="CodeQL" src="https://github.com/CoreyLeath-code/Facial-Emotion-Recognition-System/actions/workflows/codeql.yml/badge.svg"></a>
   <a href="https://github.com/CoreyLeath-code/Facial-Emotion-Recognition-System/pkgs/container/facial-emotion-recognition-system"><img alt="GHCR" src="https://img.shields.io/badge/GHCR-container-2496ED?logo=docker&logoColor=white"></a>
