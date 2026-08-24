@@ -1,7 +1,7 @@
 """
 ================================================================================
 FACIAL EMOTION RECOGNITION â€” MODEL ARCHITECTURE & INFERENCE LAYER
-Author: Corey Leath (Trojan3877)
+Author: Corey Leath (CoreyLeath-code)
 
 Purpose:
     Defines model architectures and provides a production-safe inference wrapper.

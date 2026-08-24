@@ -1,6 +1,6 @@
 # ============================================================
 # Snowflake Configuration for Facial Emotion Recognition System
-# Author: Corey Leath (Trojan3877)
+# Author: Corey Leath (CoreyLeath-code)
 # ============================================================
 
 import os

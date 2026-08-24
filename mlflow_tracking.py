@@ -1,6 +1,6 @@
 # ============================================================
 # MLflow Tracking Utility
-# Author: Corey Leath (Trojan3877)
+# Author: Corey Leath (CoreyLeath-code)
 # ============================================================
 
 import mlflow

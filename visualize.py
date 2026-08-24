@@ -1,7 +1,7 @@
 """
 =========================================================
 FACIAL EMOTION RECOGNITION — TRAINING VISUALIZATION (L5/L6)
-Author: Trojan3877 (Corey Leath)
+Author: CoreyLeath-code (Corey Leath)
 Description:
     - Loads training history (history.json)
     - Plots accuracy & loss curves
