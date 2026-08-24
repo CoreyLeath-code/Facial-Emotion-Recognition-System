@@ -7,8 +7,8 @@ These instructions help you set up and run the full project environment locally 
 ## ✅ 1. Clone the Repository
 
 ```bash
-git clone https://github.com/Trojan3877/facial-emotion-recognition.git
-cd facial-emotion-recognition
+git clone https://github.com/CoreyLeath-code/Facial-Emotion-Recognition-System.git
+cd Facial-Emotion-Recognition-System
 
 python -m venv venv
 source venv/bin/activate  # On Windows: venv\Scripts\activate
