@@ -1,7 +1,7 @@
 """
 ================================================================================
 FACIAL EMOTION RECOGNITION — TRAINING PIPELINE (L6 ENGINEERING STANDARD)
-Author: Corey Leath (Trojan3877)
+Author: Corey Leath (CoreyLeath-code)
 
 Purpose:
     Train a CNN-based emotion classification model on the FER-2013 dataset.
