@@ -1,7 +1,7 @@
 """
 =========================================================
 FACIAL EMOTION RECOGNITION — STREAMLIT WEB APP (L5/L6)
-Author: Trojan3877 (Corey Leath)
+Author: CoreyLeath-code (Corey Leath)
 Description:
     - Provides a clean web UI for emotion prediction
     - Allows image uploads
