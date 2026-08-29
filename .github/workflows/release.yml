@@ -96,7 +96,7 @@ jobs:
           name: release-dist
           path: dist
       - name: Publish release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           body_path: RELEASE_NOTES_v0.2.0.md
           generate_release_notes: false
