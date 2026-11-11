@@ -1,5 +1,11 @@
 # Facial Expression Classification — Reproducible Research Scaffold
 
+<!-- portfolio-lifecycle-badges:start -->
+[![Latest release](https://img.shields.io/github/v/release/CoreyLeath-code/Facial-Emotion-Recognition-System?display_name=tag&sort=semver)](https://github.com/CoreyLeath-code/Facial-Emotion-Recognition-System/releases/latest)
+[![Lifecycle documentation](https://img.shields.io/badge/lifecycle-documented-2563eb)](#ownership-promotion-and-operational-lifecycle)
+[![Maintainer](https://img.shields.io/badge/maintainer-Corey%20Leath-111827)](https://github.com/CoreyLeath-code)
+<!-- portfolio-lifecycle-badges:end -->
+
 <p align="center">
   <a href="https://github.com/CoreyLeath-code/Facial-Emotion-Recognition-System/actions/workflows/ci.yml">
     <img alt="CI on main" src="https://github.com/CoreyLeath-code/Facial-Emotion-Recognition-System/actions/workflows/ci.yml/badge.svg?branch=main">
