@@ -1,9 +1,9 @@
 from contextlib import asynccontextmanager
-from typing import Optional
+from typing import Annotated, Optional
 
 from fastapi import FastAPI, HTTPException, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict, Field
 import uvicorn
 from src.pipeline.inference import EmotionPipeline
 from src.src.rag.context_retriever import EmotionContextRetriever
@@ -53,7 +53,10 @@ app.add_middleware(
 
 # Request Model
 class EmotionRequest(BaseModel):
-    emotions: list[str]
+    model_config = ConfigDict(extra="forbid")
+    emotions: list[
+        Annotated[str, Field(min_length=1, max_length=32)]
+    ] = Field(min_length=1, max_length=8)
 
 
 @app.get("/")
@@ -96,18 +99,18 @@ async def predict_emotion(image: UploadFile = File(...)):
 
 @app.post("/rag")
 async def retrieve_context(request: EmotionRequest):
-    """
-    Endpoint: Retrieve psychology-backed context via RAG.
-    """
+    """Retrieve bounded reference context only when the service is ready."""
+    if rag is None:
+        raise HTTPException(status_code=503, detail="Context retriever not loaded")
     context = rag.retrieve(request.emotions)
     return {"context": context}
 
 
 @app.post("/explain")
 async def explain_emotions(request: EmotionRequest):
-    """
-    Endpoint: Generate LLM explanation using predictions + RAG context.
-    """
+    """Explain a bounded input only when both optional components are ready."""
+    if rag is None or llm is None:
+        raise HTTPException(status_code=503, detail="Explanation service not loaded")
     # Step 1: Retrieve psychology context
     rag_context = rag.retrieve(request.emotions)
 
@@ -125,8 +128,8 @@ async def full_analysis(image: UploadFile = File(...)):
     2. Retrieve RAG psychology context
     3. Generate LLM explanation
     """
-    if pipeline is None or pipeline.model is None:
-        raise HTTPException(status_code=503, detail="Model not loaded.")
+    if pipeline is None or pipeline.model is None or rag is None or llm is None:
+        raise HTTPException(status_code=503, detail="Analysis components not loaded.")
 
     payload = await image.read(settings.MAX_UPLOAD_BYTES + 1)
     try:
