@@ -40,3 +40,24 @@ def test_explain_endpoint(client, monkeypatch):
     response = client.post("/explain", json=payload)
     assert response.status_code == 200
     assert response.json()["explanation"] == "Mock explanation"
+
+
+def test_rag_rejects_unbounded_or_empty_emotion_labels(client):
+    for labels in [[], ["happy"] * 9, ["x" * 33]]:
+        response = client.post("/rag", json={"emotions": labels})
+        assert response.status_code == 422
+
+
+def test_explain_rejects_unknown_payload_fields(client):
+    response = client.post(
+        "/explain", json={"emotions": ["sad"], "untrusted": "unexpected"}
+    )
+    assert response.status_code == 422
+
+
+def test_rag_fails_closed_if_context_not_initialized(client, monkeypatch):
+    import src.api.main as api_module
+
+    monkeypatch.setattr(api_module, "rag", None)
+    response = client.post("/rag", json={"emotions": ["happy"]})
+    assert response.status_code == 503
